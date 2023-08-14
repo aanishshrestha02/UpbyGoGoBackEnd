@@ -82,9 +82,8 @@ authController.changePassword = async (req, res) => {
                 message: "Current Password does not match."
             });
         }
-
         const encryptedPassword = await bcrypt.hash(newPassword, 10);
-        const changePasswordResult = await Customer.query().update({ password: encryptedPassword });
+        const changePasswordResult = await Customer.query().findById(req.customer.id).patch({ password: encryptedPassword });
         
         if(!changePasswordResult){
             return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({

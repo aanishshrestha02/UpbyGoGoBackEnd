@@ -1,74 +1,94 @@
-// const Customer = require('../models/customers');
-// const bcrypt = require("bcryptjs");
+const httpStatus = require('http-status');
+const Customer = require('../models/customers');
 
-// const customerController = {};
+const customerController = {};
 
-// customerController.register = async (req, res) => {
-//     try {
-//         const { name, phonenumber, address, email, password } = req.body;
+customerController.getAllCustomer = async (req, res) => {
+    try {
+        let filterParams = {
+            page:1,
+            size:10,
+            sortQuery:{},
+            searchQuery: {}
+        }
+        
+        if(req.params.page){
+            filterParams={...filterParams, page: req.params.page}
+        }
+        if(req.params.size){
+            filterParams={...filterParams, size: req.params.size}
+        }
+        // if(req.params.sortQuery){
+        //     filterParams={...filterParams, sortQuery: req.params.sortQuery}
+        // }
+        // if(req.params.searchQuery){
+        //     filterParams={...filterParams, page: req.params.searchQuery}
+        // }
 
-//         const encryptedPassword = await bcrypt.hash(password, 10);
+        const customer = await Customer.query().where({}).orderBy("id", "ASC")
 
-//         const checkCustomer = await Customer.query().findOne('email', email);
+        return res.status(httpStatus.OK).json({
+            success: true,
+            message: "All Customers",
+            data: customer
+        })
 
-//         if (checkCustomer) {
-//             return res.json({ error: "Customer Already Exists" });
-//         }
-//         const insertData = {
-//             name,
-//             email,
-//             phonenumber,
-//             address,
-//             password: encryptedPassword
-//         };
-//         const result = await Customer.query().insert(insertData);
-//         if (result) {
-//             const authToken = result.generateAuthToken(result.customerId);
-//             return res.json({
-//                 success: true,
-//                 data: result,
-//                 authToken,
-//                 message: "New Customer Created"
-//             });
-//         } else {
-//             return res.json({
-//                 success: false,
-//                 message: "Somethings went wrong"
-//             });
-//         }
-//     } catch (error) {
-//         res.status(500)
-//             .json({ success: false, message: "Something went wrong" });
-//     }
-// };
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to retrive customers",
+        })
+    }
+}
 
+customerController.updateCustomer = async (req, res) => {
+    try {
+        const updateData = req.body
+        const result = await Customer.query().findById(req.params.id).update(updateData)
 
-// customerController.login = async (req, res) => {
-//     try {
-//         const checkCustomer = await Customer.query().findOne('email', req.body.email);
+        if(!result){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "Failed to update customers"
+            })
+        }
 
-//         if (!checkCustomer) {
-//             return res.status(404).json({ success: false, message: "Customer not found" });
-//         }
+        return res.status(httpStatus.OK).json({
+            success: true,
+            message: "Information Updated",
+            data: updateData
+        })
 
-//         if (await bcrypt.compare(req.body.password, checkCustomer.password)) {
-//             const authToken = checkCustomer.generateAuthToken(checkCustomer.customerId);
-//             res.status(200).json({
-//                 success: true,
-//                 message: "Login Successful",
-//                 authToken,
-//                 data: checkCustomer,
-//             });
-//         } else {
-//             res.status(401)
-//                 .json({ success: false, message: "Invalid credentials!!" });
-//         }
-//     } catch (error) {
-//         res.status(500)
-//             .json({ success: false, message: "Something went wrong" });
-//     }
-// };
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to update customers",
+        })
+    }
+}
 
+customerController.deleteCustomer = async (req, res) => {
+    try {
+        const result = await Customer.query().deleteById(req.params.id)
+        
+        if(!result){
+            return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+                success: false,
+                message: "Failed to delete customers"
+            })
+        }
 
+        return res.status(httpStatus.OK).json({
+            success: true,
+            message: "Customer deleted",
+        })
 
-// module.exports = customerController;
+    } catch (error) {
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Failed to delete customers",
+        })
+    }
+}
+
+module.exports = customerController;

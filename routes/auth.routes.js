@@ -5,7 +5,7 @@ const auth = require('../middlewares/auth')
 
 router.post("/register", authController.register );
 router.post("/login", authController.login );
-router.post("/change-passowrd", auth.verifyUser, authController.changePassword )
+router.post("/change-password", auth.verifyUser, authController.changePassword )
 // router.post("/forgot-password", customerController.forgetPassword );
   
 //   app.post("/forgot-password", async (req, res) => {
