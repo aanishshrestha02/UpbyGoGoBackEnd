@@ -11,7 +11,6 @@ class Customer extends Model {
     }
 
     static get relationMappings() {
-o9
         return {};
     }
 
