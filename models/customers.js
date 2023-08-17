@@ -1,5 +1,6 @@
 const { Model } = require('objection');
 const jwt = require('jsonwebtoken');
+const { format } = require('date-fns');
 
 class Customer extends Model {
     static get tableName() {
@@ -19,10 +20,20 @@ class Customer extends Model {
         delete json.password;
         return json;
     }
+    
+    $beforeInsert() {
+        this.created_at = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+
+    }
+
+    $beforeUpdate() {
+        this.updated_at = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+    }
 
     generateAuthToken(customerId) {
         return jwt.sign({ id: customerId }, process.env.MY_SECRET_KEY);
     }
+
 
 }
 
